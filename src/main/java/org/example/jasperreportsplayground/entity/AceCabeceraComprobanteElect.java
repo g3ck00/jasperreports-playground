@@ -18,6 +18,11 @@ public class AceCabeceraComprobanteElect {
     @EmbeddedId
     private AceCabeceraComprobanteElectId id;
 
+    @Column(name="codigo")
+    private int codigo;
+
+    @Column(name="age_licenc_codigo")
+    private int ageLicencCodigo;
 
     @Column(name = "codigo_documento")
     private Short codigoDocumento;
