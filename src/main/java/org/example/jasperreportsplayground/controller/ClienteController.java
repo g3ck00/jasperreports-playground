@@ -8,6 +8,8 @@ import org.example.jasperreportsplayground.repository.AceCabeceraComprobanteElec
 import org.example.jasperreportsplayground.service.ClienteService;
 import org.example.jasperreportsplayground.service.FacturaReportService;
 import org.example.jasperreportsplayground.service.ReportService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,27 +23,39 @@ import java.sql.SQLException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/clientes")
+@RequestMapping("/facturas")
 public class ClienteController {
 
     private final ClienteService clienteService;
     private final ReportService reportService;
     private final FacturaReportService facturaReportService;
+    private final AceCabeceraComprobanteElectRepository aceCabeceraComprobanteElectRepository;
 
     public ClienteController(
             ClienteService clienteService,
             FacturaReportService facturaReportService,
-            ReportService reportService
+            ReportService reportService,
+            AceCabeceraComprobanteElectRepository aceCabeceraComprobanteElectRepository
     ){
         this.clienteService = clienteService;
         this.facturaReportService=facturaReportService;
         this.reportService = reportService;
+        this.aceCabeceraComprobanteElectRepository=aceCabeceraComprobanteElectRepository;
     }
 
+    @GetMapping
+    public Page<AceCabeceraComprobanteElect> findAll(
+            Pageable pageable
+    ) {
+        return aceCabeceraComprobanteElectRepository.findAll(pageable);
+    }
+
+    /*
     @GetMapping
     public List<ClienteDTO> readClientes() {
         return clienteService.readClientes();
     }
+    */
 
     //Consultar datos de prueba de Factura
     /*@GetMapping("/demo")
