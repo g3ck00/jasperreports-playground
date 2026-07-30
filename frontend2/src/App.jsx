@@ -9,7 +9,7 @@ import './App.css'
 const API="http://localhost:8080/api"
 
 function App() {
-  const [usuarios, setUsuarios] = useState([]);
+  const [comprobantes, setComprobantes] = useState([]);
 
   const [editandoId, setEditandoId] = useState(null);
 
@@ -33,34 +33,12 @@ function App() {
   const [idBusqueda,setIdBusqueda]=useState("");
   const [errorBusqueda, setErrorBusqueda]=useState("");
 
-  const [usuario,setUsuario]=useState({
-    nombreUsuario:"",
-    contrasenna:"",
-    email:"",
-    activo:false,
-    creadoPor:"",
-    fechaCreacionRegistrada:"",
-    modificadoPor:"",
-    fechaModifcacion:""
-  })
-
-  const [usuarioEncontrado, setUsuarioEncontrado]=useState({
-    nombreUsuario:"",
-    contrasenna:"",
-    email:"",
-    activo:false,
-    creadoPor:"",
-    fechaCreacionRegistrada:"",
-    modificadoPor:"",
-    fechaModifcacion:""
-  })
-
-  const fetchUsuarios = async (page=0) => {
-    const response=await fetch(`${API}/usuarios?page=${page}&size=20`);
+  const fetchComprobantes = async (page=0) => {
+    const response=await fetch(`${API}/facturas?page=${page}&size=20`);
     const data=await response.json();
 
     try {
-      setUsuarios(data.content);
+      setComprobantes(data.content);
       setPagina(data.number);
       setTotalPaginas(data.totalPages);
 
@@ -71,166 +49,8 @@ function App() {
     }
   }
 
-  const crearUsuario=async()=>{
-
-    setErrores({});
-
-    setMensajeExito("");
-
-    if (!usuario.nombreUsuario || !usuario.contrasenna || !usuario.email
-        || !usuario.activo) return alert ("Todos los campos son obligatorios.");
-
-    try{
-
-      let response;
-
-      if (editandoId){
-        response=await fetch(`${API}/usuarios/${editandoId}`, {
-          method: "PUT",
-          headers: {"Content-Type": "application/json",},
-          body: JSON.stringify(usuario),
-        });
-
-        setEditandoId(null);
-
-      } else {
-        response=await fetch ("http://localhost:8080/api/usuarios",{
-          method: "POST",
-          headers: {"Content-Type":"application/json",},
-          body: JSON.stringify(usuario),
-        });
-      }
-
-      if (!response.ok){
-
-        if (response.status===400){
-          const errores=await response.json();
-
-          console.log(errores);
-
-          setErrores(errores);
-
-          return;
-        }
-
-        throw new Error("Error al guardar usuario.");
-      }
-
-      setMensajeExito("Usuario guardado con éxito.")
-
-      setUsuario({
-        nombreUsuario:"",
-        contrasenna:"",
-        email:"",
-        activo:false
-      })
-
-      fetchUsuarios();
-
-    } catch (error) {
-      console.error("Error al guardar o editar usuario...");
-    }
-  }
-
-  /*
-  const updateUsuario=async()=>{
-      setErrores({});
-
-      setMensajeExito("");
-
-      try{
-
-          let response;
-
-          if (editandoId){
-              response=await fetch(`${API}/usuarios/${editandoId}`, {
-                  method: "UPDATE",
-                  headers: {"Content-Type": "application/json",},
-                  body: JSON.stringify(usuario),
-              });
-
-              setEditandoId(null);
-
-          } else {
-              response=await fetch ("http://localhost:8080/api/usuarios",{
-                  method: "POST",
-                  headers: {"Content-Type":"application/json",},
-                  body: JSON.stringify(usuario),
-              });
-          }
-
-          if (!response.ok){
-
-              if (response.status===400){
-                  const errores=await response.json();
-
-                  console.log(errores);
-
-                  setErrores(errores);
-
-                  return;
-              }
-
-              throw new Error("Error al editar usuario...");
-          }
-
-          setMensajeExito("Usuario guardado con éxito.")
-
-          setUsuario({
-              nombreUsuario:"",
-              contrasenna:"",
-              email:"",
-              activo:false
-          })
-
-          fetchUsuarios();
-
-      } catch (error) {
-          console.error("Error al guardar o editar usuario...");
-      }
-  }
-   */
-
-  const buscarUsuario=async()=>{
-    setErrorBusqueda("");
-
-    try {
-      const response = await fetch(`${API}/usuarios/${idBusqueda}`);
-
-      if (!response.ok) {
-        setUsuarioEncontrado({
-          nombreUsuario: "",
-          contrasenna: "",
-          email: "",
-          activo: false
-        });
-
-        setErrorBusqueda("El usuario no existe...");
-        return;
-      }
-
-      const data = await response.json();
-
-      setUsuarioEncontrado({
-        nombreUsuario: data.nombreUsuario,
-        contrasenna: data.contrasenna,
-        email: data.email,
-        activo: data.activo,
-        creadoPor: data.creadoPor,
-        fechaCreacionRegistrada: data.fechaCreacionRegistrada,
-        modificadoPor: data.modificadoPor,
-        fechaModifcacion: data.fechaModifcacion
-      });
-
-      console.log(usuarioEncontrado);
-
-    } catch (error) {
-      setErrorBusqueda("Error en la consulta...")
-    }
-  }
-
   useEffect(() => {
-    fetchUsuarios(pagina);
+    fetchComprobantes(pagina);
   }, [pagina])
 
   {/*
@@ -248,177 +68,23 @@ function App() {
   }, []);
   */}
 
-  useEffect(() => {
-    fetch(`${API}/roles-asignados`)
-        .then((res) => {
-          if (!res.ok) throw new Error("Error al obtener los roles asignados...");
-          return res.json();
-        })
-        .then((data) => {
-          setRolesAsignados(data.content ?? data); // soporta Page o List
-        })
-        .catch((err) => console.log(err))
-        .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return <h2>Cargando...</h2>
-  }
-
   return (
       <div>
-        <h1>Project Two</h1>
-        <h2>Sistema de administración de usuarios</h2>
-
-        <Button onClick={()=>setMostrarFormularioCreateUsuario(!mostrarFormularioCreateUsuario)}>
-          {mostrarFormularioCreateUsuario ? "Cancelar" : "Crear usuario"}
-        </Button>
-
-        {mostrarFormularioCreateUsuario && (
-            <div className={"formularioCreateUsuario"}>
-              <h2>Nuevo usuario</h2>
-
-              <label>Nombre de usuario: </label>
-              <input type="text" value={usuario.nombreUsuario}
-                     onChange={(e)=>
-                         setUsuario({...usuario, nombreUsuario: e.target.value})
-                     }/><br></br>
-
-              <label>Contraseña: </label>
-              <input type="text"
-                     value={usuario.contrasenna}
-                     onChange={(e)=>
-                         setUsuario({...usuario, contrasenna : e.target.value})
-                     }/><br></br>
-
-              <label>Correo electrónico: </label>
-              <input type="text"
-                     value={usuario.email}
-                     onChange={(e)=>
-                         setUsuario({...usuario, email : e.target.value})
-                     }/><br></br>
-
-              {errores.email &&
-                  <p className={"error"}>{errores.email}</p>}
-
-              <label>Estado del registro: </label>
-              <input type="checkbox"
-                     checked={usuario.activo}
-                     onChange={(e)=>
-                         setUsuario({...usuario, activo : e.target.checked})
-                     }/><br></br>
-
-              <button onClick={crearUsuario}>
-                Guardar
-              </button>
-
-              {mensajeExito&&(
-                  <p className={"exito"}>{mensajeExito}</p>
-              )}
-
-            </div>
-        )}
-
-        <div className={"form"}>
-          <Button onClick={()=>setMostrarFormularioBuscarUsuario(!mostrarFormularioBuscarUsuario)}>
-            {mostrarFormularioBuscarUsuario ? "Cancelar" : "Buscar usuario"}
-          </Button>
-
-          {mostrarFormularioBuscarUsuario && (
-              <div className={"formularioBuscarUsuario"}>
-                <h2>Buscar usuario</h2>
-
-                <label>ID de usuario:</label>
-                <input type="text" value={idBusqueda}
-                       onChange={(e)=>setIdBusqueda(e.target.value)}
-                />
-
-                <button onClick={buscarUsuario}>
-                  Buscar
-                </button><br></br>
-
-                {errorBusqueda && (
-                    <p className={"error"}>{errorBusqueda}</p>
-                )}
-
-                {usuarioEncontrado.nombreUsuario &&(
-                    <>
-                      <label>Nombre de usuario</label>
-                      <input
-                          type={"text"}
-                          value={usuarioEncontrado.nombreUsuario}
-                          readOnly
-                      /><br></br>
-
-                      <label>Email</label>
-                      <input
-                          type={"text"}
-                          value={usuarioEncontrado.email}
-                          readOnly
-                      /><br></br>
-
-                      <label>Activo</label>
-                      <input
-                          type={"checkbox"}
-                          checked={usuarioEncontrado.activo}
-                          readOnly
-                      /><br></br>
-
-                      <label>Creado por</label>
-                      <input
-                          type={"text"}
-                          value={usuarioEncontrado.creadoPor}
-                          readOnly
-                      /><br></br>
-
-                      <label>Fecha de modificación</label>
-                      <input
-                          type={"text"}
-                          value={usuarioEncontrado.fechaCreacionRegistrada}
-                          readOnly
-                      /><br></br>
-
-                      <label>Modificado por</label>
-                      <input
-                          type={"text"}
-                          value={usuarioEncontrado.modificadoPor}
-                          readOnly
-                      /><br></br>
-
-                      <label>fechaModificacion</label>
-                      <input
-                          type={"text"}
-                          value={usuarioEncontrado.fechaModifcacion}
-                          readOnly
-                      /><br></br>
-                    </>
-                )}
-              </div>
-          )}
-
-          <Button onClick={()=>{return 0;}}>
-            {mostrarFormularioCreateUsuario ? "Cancelar" : "Modificar usuario [DUMMY]"}
-          </Button>
-
-          <Button onClick={()=>{return 0;}}
-                  style={{backgroundColor:"#ff0000"}}>
-            {mostrarFormularioCreateUsuario ? "Cancelar" : "Eliminar usuario [DUMMY]"}
-          </Button>
-
-        </div>
+        <h1>The JasperReports Playground</h1>
+        <h2>It varks!</h2>
 
         <div className={"container mt-4"}>
-          <h2>Usuarios</h2>
+          <h2>Comprobantes</h2>
 
-          <Button disabled={pagina===0}
+          <button disabled={pagina===0}
                   onClick={()=>setPagina(pagina-1)}
-          >Anterior</Button>
+          >Anterior</button>
 
           <span>Pagina {pagina+1} de {totalPaginas}</span>
 
-          <Button disabled={pagina+1>=totalPaginas}
+          <button disabled={pagina+1>=totalPaginas}
                   onClick={()=>setPagina(pagina+1)}
-          >Siguiente</Button>
+          >Siguiente</button>
 
           <br></br>
           <br></br>
@@ -430,30 +96,149 @@ function App() {
             >
               <thead>
               <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Roles</th>
-                <th>Estado del registro</th>
-                <th>Creador</th>
-                <th>Fecha de creación</th>
-                <th>Modificador</th>
-                <th>Fecha de modificación</th>
+                <th>codigo</th>
+                <th>codigo_documento</th>
+                <th>codigo_documento_origen</th>
+                {/*}
+                <th>tipo_ambiente</th>
+                <th>tipo_emision</th>
+                {*/}
+                <th>razon_social</th>
+                <th>nombre_comercial</th>
+                <th>ruc</th>
+                <th>establecimiento</th>
+                <th>punto_emision</th>
+                <th>secuencial</th>
+                <th>establecimiento_ce_origen</th>
+                <th>secuencial_ce_origen</th>
+                <th>direccion_matriz_emisor</th>
+                <th>fecha_emision</th>
+                <th>direccion_establecimiento</th>
+                <th>contribuyente_especial</th>
+                <th>obligado_contabilidad</th>
+                <th>razon_social_comp_sr_trans</th>
+                <th>moneda</th>
+                <th>gr_fecha_ini_transporte</th>
+                <th>gr_fecha_fin_transporte</th>
+                <th>numero_autorizacion</th>
+                <th>fecha_autorizacion</th>
+                <th>clave_acceso</th>
+                <th>correo_electronico1</th>
+                <th>correo_electronico2</th>
+                <th>contador_reenvio</th>
+                <th>transaccion_origen</th>
+                <th>estado_aprobacion</th>
+                <th>fecha_aprobacion</th>
+                <th>usuario_ingreso</th>
+                <th>ubicacion_ingreso</th>
+                <th>ace_cab_ce_codigo</th>
+                <th>punto_emision_ce_origen</th>
+                <th>fecha_emision_origen</th>
+                <th>identificacion</th>
+                <th>direccion</th>
+                <th>total_sin_impuestos</th>
+                <th>rise</th>
+                <th>valor</th>
+                <th>fe_guia_remision</th>
+                <th>fe_total_descuento</th>
+                <th>fe_propina</th>
+                <th>fe_importe_total</th>
+                <th>cr_periodo_fiscal</th>
+                <th>gr_placa</th>
+                <th>nc_motivo</th>
+                <th>comprobante_estado</th>
+                <th>estado</th>
+                <th>usuario_aprobacion</th>
+                <th>observacion_aprobacion</th>
+                <th>fecha_estado</th>
+                <th>observacion_estado</th>
+                <th>fecha_ingreso</th>
+                <th>usuario_modificacion</th>
+                <th>fecha_modificacion</th>
+                <th>ubicacion_modificacion</th>
+                <th>age_licenc_codigo</th>
+                <th>ace_cab_ce_age_licenc_codigo</th>
+                <th>age_tip_id_codigo</th>
+                <th>valor_retencion_iva</th>
+                <th>valor_retencion_renta</th>
+                <th>codigo_reembolso</th>
+                <th>total_base_imponible_reembolso</th>
+                <th>total_impuestos_reembolso</th>
+                <th>total_comprobantes_reembolso</th>
               </tr>
               </thead>
 
               <tbody>
-              {usuarios.map((u)=>(
-                  <tr key={u.idUsuario} style={{height: "50px"}}>
-                    <td style={{ overflowWrap: "break-word" }}>{u.idUsuario}</td>
-                    <td style={{ overflowWrap: "break-word" }}>{u.nombreUsuario}</td>
-                    <td style={{ overflowWrap: "break-word" }}>{u.email}</td>
-                    <td style={{ overflowWrap: "break-word" }}>{u.roles}</td>
-                    <td style={{ overflowWrap: "break-word" }}>{u.activo}</td>
-                    <td style={{ overflowWrap: "break-word" }}>{u.creadoPor}</td>
-                    <td style={{ overflowWrap: "break-word" }}>{u.fechaCreacionRegistrada}</td>
-                    <td style={{ overflowWrap: "break-word" }}>{u.modificadoPor}</td>
-                    <td style={{ overflowWrap: "break-word" }}>{u.fechaModificacion}</td>
+              {comprobantes.map((c)=>(
+                  <tr key={c.codigo} style={{height: "50px"}}>
+                    <td style={{ overflowWrap: "break-word" }}>{c.codigo_documento}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.codigo_documento_origen}</td>
+                    {/*}
+                    <td style={{ overflowWrap: "break-word" }}>{c.tipo_ambiente}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.tipo_emision}</td>
+                    {*/}
+                    <td style={{ overflowWrap: "break-word" }}>{c.razon_social}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.nombre_comercial}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.ruc}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.establecimiento}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.punto_emision}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.secuencial}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.establecimiento_ce_origen}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.secuencial_ce_origen}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.direccion_matriz_emisor}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.fecha_emision}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.direccion_establecimiento}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.contribuyente_especial}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.obligado_contabilidad}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.razon_social_comp_sr_trans}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.moneda}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.gr_fecha_ini_transporte}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.gr_fecha_fin_transporte}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.numero_autorizacion}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.fecha_autorizacion}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.clave_acceso}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.correo_electronico1}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.correo_electronico2}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.contador_reenvio}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.transaccion_origen}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.estado_aprobacion}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.fecha_aprobacion}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.usuario_ingreso}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.ubicacion_ingreso}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.ace_cab_ce_codigo}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.punto_emision_ce_origen}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.fecha_emision_origen}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.identificacion}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.direccion}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.total_sin_impuestos}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.rise}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.valor}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.fe_guia_remision}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.fe_total_descuento}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.fe_propina}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.fe_importe_total}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.cr_periodo_fiscal}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.gr_placa}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.nc_motivo}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.comprobante_estado}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.estado}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.usuario_aprobacion}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.observacion_aprobacion}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.fecha_estado}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.observacion_estado}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.fecha_ingreso}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.usuario_modificacion}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.fecha_modificacion}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.ubicacion_modificacion}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.age_licenc_codigo}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.ace_cab_ce_age_licenc_codigo}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.age_tip_id_codigo}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.valor_retencion_iva}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.valor_retencion_renta}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.codigo_reembolso}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.total_base_imponible_reembolso}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.total_impuestos_reembolso}</td>
+                    <td style={{ overflowWrap: "break-word" }}>{c.total_comprobantes_reembolso}</td>
                   </tr>
               ))}
               </tbody>
@@ -461,84 +246,6 @@ function App() {
           </div>
 
         </div>
-
-        {/*}
-          <div className={"form"}>
-              <button onClick={()=>setMostrarFormularioUpdateUsuario(!mostrarFormularioUpdateUsuario)}>
-                  {mostrarFormularioUpdateUsuario ? "Cancelar" : "Modificar usuario"}
-              </button>
-
-              {mostrarFormularioUpdateUsuario && (
-                  <div className={"formularioUpdateUsuario"}>
-                      <h2>Modificar usuario</h2>
-
-                      <label>ID de usuario:</label>
-                      <input type="text" value={idBusqueda}
-                             onChange={(e)=>setIdBusqueda(e.target.value)}
-                      />
-
-                      <button onClick={buscarUsuario}>
-                          Buscar
-                      </button><br></br>
-
-                      {errorBusqueda && (
-                          <p className={"error"}>{errorBusqueda}</p>
-                      )}
-
-                      <label>Nombre de usuario: </label>
-                      <input type="text" value={usuario.nombreUsuario}
-                                    onChange={(e)=>
-                                    setUsuario({...usuario, nombreUsuario: e.target.value})
-                                    }/><br></br>
-
-                        <label>Contraseña: </label>
-                        <input type="text"
-                        value={usuario.contrasenna}
-                                onChange={(e)=>
-                                setUsuario({...usuario, contrasenna : e.target.value})
-                                }/><br></br>
-
-                      <label>Correo electrónico: </label>
-                        <input type="text"
-                        value={usuario.email}
-                                onChange={(e)=>
-                                setUsuario({...usuario, email : e.target.value})
-                                }/><br></br>
-
-                      {errores.email &&
-                      <p className={"error"}>{errores.email}</p>}
-
-                        <label>Estado del registro: </label>
-                        <input type="checkbox"
-                        checked={usuario.activo}
-                                onChange={(e)=>
-                                setUsuario({...usuario, activo : e.target.checked})
-                                }/><br></br>
-
-
-                      <button onClick={crearUsuario}>
-                            Guardar
-                        </button>
-
-                      {mensajeExito&&(
-                          <p className={"exito"}>{mensajeExito}</p>
-                      )}
-
-                  </div>
-              )}
-              {*/}
-
-        {/*}
-              <h2>Usuarios</h2>
-              <ul>
-                  {usuarios.map((u)=>(
-                      <li key={u.idUsuario}>
-                          {u.idUsuario} --- {u.nombreUsuario} --- {u.email} --- {u.roles} --- {u.activo}
-                          --- {u.creadoPor} --- {u.fechaCreacionRegistrada} --- {u.modificadoPor} --- {u.fechaModificacion}
-                      </li>
-                  ))}
-              </ul>
-              {*/}
       </div>
   );
 }

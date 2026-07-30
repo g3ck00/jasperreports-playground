@@ -31,7 +31,9 @@ public class FacturaReporteDTO {
     private BigDecimal propina;
     private BigDecimal total;
 
-    //Otros
+    //Bryant
+    private int codigo;
+    private int ageLicencCodigo;
     private String numeroAutorizacion;
     private String direccionEstablecimiento;
     private String obligadoContabilidad;
