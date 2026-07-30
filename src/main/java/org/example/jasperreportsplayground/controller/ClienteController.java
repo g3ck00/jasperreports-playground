@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/clientes")
+@RequestMapping("/comprobantes")
 public class ClienteController {
 
     private final ClienteService clienteService;
