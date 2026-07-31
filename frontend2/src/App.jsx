@@ -5,9 +5,7 @@ import { getComprobantes } from "./services/comprobanteService";
 
 function App() {
 
-
   const [comprobantes, setComprobantes] = useState([]);
-
 
   const cargarComprobantes = async () => {
 
@@ -21,15 +19,13 @@ function App() {
 
 
   return (
-
       <div>
 
         <h1>The JasperReports Playground</h1>
           <h6>It varks!</h6>
 
-
         <button onClick={cargarComprobantes}>
-          Mostrar comprobantes
+          Cargar comprobantes
         </button>
 
         <hr/>
@@ -37,11 +33,8 @@ function App() {
         <ComprobanteTable
             comprobantes={comprobantes}
         />
-
       </div>
-
   );
-
 }
 
 

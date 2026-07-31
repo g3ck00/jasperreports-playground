@@ -39,55 +39,39 @@ public class ReportService {
             String formato
     ) throws JRException, IOException {
 
-        FacturaReporteDTO factura =
-                facturaReportService.readFactura(
-                        codigo,
-                        ageLicencCodigo
-                );
+        FacturaReporteDTO factura = facturaReportService.readFactura(codigo, ageLicencCodigo);
 
         return generarReporte(formato, factura);
     }
 
-    public byte[] generarReporte(
-            String formato,
-            FacturaReporteDTO factura
+    public byte[] generarReporte(String formato, FacturaReporteDTO factura
     ) throws JRException, IOException {
-        /*
-         * ============================
-         * Parámetros del reporte
-         * ============================
-         */
 
         Map<String, Object> parametros = new HashMap<>();
 
+        // Definir logo
         InputStream logo = getClass().getResourceAsStream("/company-logo-transparent-png-19.png");
 
         if (logo == null) {
-            throw new IllegalStateException(
-                    "No se encontró el logo"
-            );
+            throw new IllegalStateException("No se encontró el logo");
         }
 
         parametros.put("logoEmpresa", logo);
+
+        // Definir fecha del reporte
+
         parametros.put("fechaReporte", new java.util.Date());
 
-        /*
-         * ============================
-         * Datasource para Jasper
-         * ============================
-         */
+        // Definir Datasource
 
-        JRBeanCollectionDataSource dataSource =
-                new JRBeanCollectionDataSource(
-                        List.of(factura)
-                );
+        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(List.of(factura));
 
         //Traer el archivo desde los recursos locales de la PC (no recomendado para desarrollo)
         //Oficina
-        //InputStream reporte = new FileInputStream("C:\\Users\\bescalante\\JaspersoftWorkspace\\MyReports\\factura_sasf.jrxml");
+        InputStream reporte = new FileInputStream("C:\\Users\\bescalante\\JaspersoftWorkspace\\MyReports\\factura_sasf.jrxml");
 
         //Casa
-        InputStream reporte = new FileInputStream("C:\\Users\\Bryantcore3\\Desktop\\factura_sasf.jrxml");
+        //InputStream reporte = new FileInputStream("C:\\Users\\Bryantcore3\\Desktop\\factura_sasf.jrxml");
 
         /*
         InputStream reporte =
