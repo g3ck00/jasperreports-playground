@@ -6,6 +6,7 @@ import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import org.example.jasperreportsplayground.dto.ComprobanteReporteDTO;
+import org.example.jasperreportsplayground.dto.DetalleFacturaDTO;
 import org.example.jasperreportsplayground.repository.AceCabeceraComprobanteElectRepository;
 import org.springframework.stereotype.Service;
 
@@ -68,7 +69,8 @@ public class ReportService {
 
         // Definir el archivo desde los recursos locales de la PC (no recomendado para desarrollo)
         // Oficina
-        InputStream reporte = new FileInputStream("C:\\Users\\bescalante\\JaspersoftWorkspace\\MyReports\\factura_sasf.jrxml");
+        //InputStream reporte = new FileInputStream("C:\\Users\\bescalante\\JaspersoftWorkspace\\MyReports\\factura_sasf.jrxml");
+        InputStream reporte = new FileInputStream("C:\\Users\\bescalante\\Desktop\\factura_sasf.jrxml");
 
         // Definir el archivo desde los recursos locales de la PC (no recomendado para desarrollo)
         // Casa
@@ -85,6 +87,10 @@ public class ReportService {
 
         // Compilar el reporte
         JasperReport jasperReport = JasperCompileManager.compileReport(reporte);
+
+        System.out.println(factura.getIdentificacion());
+        System.out.println(factura.getRazonSocial());
+        System.out.println(factura.getFechaEmision());
 
         // Rellenar el reporte
         JasperPrint print = JasperFillManager.fillReport(

@@ -12,7 +12,7 @@ import lombok.*;
 public class AceDetallesComprobantesElec {
 
     @EmbeddedId
-    private AceCabeceraComprobanteElectId id;
+    private AceDetallesComprobantesElecId id;
 
     @Column(name="producto_codigo_principal")
     private String productoCodigoPrincipal;
@@ -26,8 +26,11 @@ public class AceDetallesComprobantesElec {
     @Column(name="descripcion")
     private String descripcion;
 
-    @Column(name="precio")
+    @Column(name="precio_unitario")
     private Double precio;
+
+    @Column(name="valor_descuento")
+    private Double valorDescuento;
 
     /*
     @Column(name = "codigo_documento")
@@ -36,7 +39,6 @@ public class AceDetallesComprobantesElec {
 
     @Column(name = "codigo_documento_origen")
     private Short codigoDocumentoOrigen;
-
 
     @Column(name = "tipo_ambiente")
     private Short tipoAmbiente;

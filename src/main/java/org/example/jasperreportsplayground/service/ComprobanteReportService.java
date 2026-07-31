@@ -5,7 +5,9 @@ import org.example.jasperreportsplayground.dto.DetalleFacturaDTO;
 import org.example.jasperreportsplayground.dto.ComprobanteReporteDTO;
 import org.example.jasperreportsplayground.entity.AceCabeceraComprobanteElect;
 import org.example.jasperreportsplayground.entity.AceCabeceraComprobanteElectId;
+import org.example.jasperreportsplayground.entity.AceDetallesComprobantesElec;
 import org.example.jasperreportsplayground.repository.AceCabeceraComprobanteElectRepository;
+import org.example.jasperreportsplayground.repository.AceDetallesComprobantesElecRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,11 +18,14 @@ import java.util.List;
 public class ComprobanteReportService {
 
     private final AceCabeceraComprobanteElectRepository aceCabeceraComprobanteElectRepository;
+    private final AceDetallesComprobantesElecRepository aceDetallesComprobantesElecRepository;
 
     public ComprobanteReportService(
-            AceCabeceraComprobanteElectRepository aceCabeceraComprobanteElectRepository
+            AceCabeceraComprobanteElectRepository aceCabeceraComprobanteElectRepository,
+            AceDetallesComprobantesElecRepository aceDetallesComprobantesElecRepository
     ) {
         this.aceCabeceraComprobanteElectRepository = aceCabeceraComprobanteElectRepository;
+        this.aceDetallesComprobantesElecRepository=aceDetallesComprobantesElecRepository;
     }
 
     // Read All Comprobantes
@@ -65,7 +70,10 @@ public class ComprobanteReportService {
          *       .findByFactura(...)
          *
          */
-        List<DetalleFacturaDTO> detalles = List.of();
+        List<DetalleFacturaDTO> detalles = aceDetallesComprobantesElecRepository.findByIdAceCabCeCodigoAndIdAceCabCeAgeLicencCodigo(
+                factura.getId().getCodigo(),
+                factura.getId().getAgeLicencCodigo()
+        ).stream().map(this::mapToDetalleDTO).toList();
 
         return new ComprobanteReporteDTO(
                 String.valueOf(factura.getSecuencial()),
@@ -83,6 +91,7 @@ public class ComprobanteReportService {
                 factura.getTotalDescuento(),
                 factura.getPropina(),
                 factura.getImporteTotal(),
+                factura.getIdentificacion(),
 
                 detalles,
 
@@ -93,6 +102,23 @@ public class ComprobanteReportService {
                 factura.getFechaAutorizacion(),
                 factura.getTipoAmbiente(),
                 factura.getTipoEmision()
+        );
+    }
+
+    private DetalleFacturaDTO mapToDetalleDTO(
+            AceDetallesComprobantesElec detalle
+    ) {
+        return new DetalleFacturaDTO(
+                detalle.getId().getCodigo(),
+                detalle.getProductoCodigoPrincipal(),
+                detalle.getProductoCodigoAuxiliar(),
+                detalle.getCantidad(),
+                detalle.getDescripcion(),
+                detalle.getPrecio(),
+                //detalle.getUnidadMedida(),
+                //detalle.getPrecioUnitario(),
+                detalle.getValorDescuento()
+                //detalle.getTotalSinImpuestos()
         );
     }
 

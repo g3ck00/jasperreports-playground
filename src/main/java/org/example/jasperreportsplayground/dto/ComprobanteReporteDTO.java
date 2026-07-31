@@ -16,6 +16,8 @@ public class ComprobanteReporteDTO {
 
     // Información emisor
     private String razonSocial;
+    private String identificacion;
+
     private String nombreComercial;
     private String ruc;
     private String direccionMatriz;
@@ -55,6 +57,7 @@ public class ComprobanteReporteDTO {
             BigDecimal descuento,
             BigDecimal propina,
             BigDecimal total,
+            String identificacion,
             List<DetalleFacturaDTO> detalles,
 
             //Bryant
@@ -69,6 +72,7 @@ public class ComprobanteReporteDTO {
         this.fechaEmision = fechaEmision;
         this.claveAcceso = claveAcceso;
         this.razonSocial = razonSocial;
+        this.identificacion = identificacion;
         this.nombreComercial = nombreComercial;
         this.ruc = ruc;
         this.direccionMatriz = direccionMatriz;
