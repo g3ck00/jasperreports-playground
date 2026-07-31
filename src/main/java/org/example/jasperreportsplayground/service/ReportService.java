@@ -5,7 +5,7 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
-import org.example.jasperreportsplayground.dto.FacturaReporteDTO;
+import org.example.jasperreportsplayground.dto.ComprobanteReporteDTO;
 import org.example.jasperreportsplayground.repository.AceCabeceraComprobanteElectRepository;
 import org.springframework.stereotype.Service;
 
@@ -21,14 +21,14 @@ import java.util.Map;
 @Service
 public class ReportService {
 
-    private final FacturaReportService facturaReportService;
+    private final ComprobanteReportService comprobanteReportService;
     private final AceCabeceraComprobanteElectRepository aceCabeceraComprobanteElectRepository;
 
     public ReportService(
-            FacturaReportService facturaReportService,
+            ComprobanteReportService comprobanteReportService,
             AceCabeceraComprobanteElectRepository aceCabeceraComprobanteElectRepository
     ) {
-        this.facturaReportService = facturaReportService;
+        this.comprobanteReportService = comprobanteReportService;
         this.aceCabeceraComprobanteElectRepository = aceCabeceraComprobanteElectRepository;
     }
 
@@ -39,12 +39,12 @@ public class ReportService {
             String formato
     ) throws JRException, IOException {
 
-        FacturaReporteDTO factura = facturaReportService.readFactura(codigo, ageLicencCodigo);
+        ComprobanteReporteDTO factura = comprobanteReportService.readFactura(codigo, ageLicencCodigo);
 
         return generarReporte(formato, factura);
     }
 
-    public byte[] generarReporte(String formato, FacturaReporteDTO factura
+    public byte[] generarReporte(String formato, ComprobanteReporteDTO factura
     ) throws JRException, IOException {
 
         Map<String, Object> parametros = new HashMap<>();
@@ -66,88 +66,56 @@ public class ReportService {
 
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(List.of(factura));
 
-        //Traer el archivo desde los recursos locales de la PC (no recomendado para desarrollo)
-        //Oficina
+        // Definir el archivo desde los recursos locales de la PC (no recomendado para desarrollo)
+        // Oficina
         InputStream reporte = new FileInputStream("C:\\Users\\bescalante\\JaspersoftWorkspace\\MyReports\\factura_sasf.jrxml");
 
-        //Casa
+        // Definir el archivo desde los recursos locales de la PC (no recomendado para desarrollo)
+        // Casa
         //InputStream reporte = new FileInputStream("C:\\Users\\Bryantcore3\\Desktop\\factura_sasf.jrxml");
 
+        // Definir el JRXML desde la ruta del IDE
         /*
-        InputStream reporte =
-                getClass()
-                        .getResourceAsStream(
-                                "/reports/factura.jrxml"
-                        );
+        InputStream reporte =getClass().getResourceAsStream("/reports/factura.jrxml");
          */
 
         if (reporte == null) {
-            throw new RuntimeException(
-                    "No se encontró el reporte"
-            );
+            throw new RuntimeException("No se encontró el reporte");
         }
 
-        /*
-         * ============================
-         * Compilar reporte
-         * ============================
-         */
-
+        // Compilar el reporte
         JasperReport jasperReport = JasperCompileManager.compileReport(reporte);
 
-        /*
-         * ============================
-         * Llenar reporte
-         * ============================
-         */
-
-        JasperPrint print =
-                JasperFillManager.fillReport(
+        // Rellenar el reporte
+        JasperPrint print = JasperFillManager.fillReport(
                         jasperReport,
                         parametros,
                         dataSource
-                );
+        );
 
         System.out.println("Paginas: " + print.getPages().size());
 
-        /*
-         * ============================
-         * Exportar
-         * ============================
-         */
+        // Exportar el reporte
 
         if (formato.equalsIgnoreCase("pdf")) {
-
-            return JasperExportManager
-                    .exportReportToPdf(print);
-
+            return JasperExportManager.exportReportToPdf(print);
         }
 
         if (formato.equalsIgnoreCase("xlsx")) {
 
-            ByteArrayOutputStream output =
-                    new ByteArrayOutputStream();
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-            JRXlsxExporter exporter =
-                    new JRXlsxExporter();
+            JRXlsxExporter exporter = new JRXlsxExporter();
 
-            exporter.setExporterInput(
-                    new SimpleExporterInput(print)
-            );
+            exporter.setExporterInput(new SimpleExporterInput(print));
 
-            exporter.setExporterOutput(
-                    new SimpleOutputStreamExporterOutput(
-                            output
-                    )
-            );
+            exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(output));
 
             exporter.exportReport();
 
             return output.toByteArray();
         }
 
-        throw new IllegalArgumentException(
-                "Formato no soportado: " + formato
-        );
+        throw new IllegalArgumentException("Formato no soportado: " + formato);
     }
 }

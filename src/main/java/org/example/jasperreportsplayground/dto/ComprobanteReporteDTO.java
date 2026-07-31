@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-public class FacturaReporteDTO {
+public class ComprobanteReporteDTO {
 
     // Cabecera factura
     private String numeroFactura;
@@ -20,10 +20,8 @@ public class FacturaReporteDTO {
     private String ruc;
     private String direccionMatriz;
 
-
     // Cliente
     private ClienteFacturaDTO cliente;
-
 
     // Totales
     private BigDecimal subtotal;
@@ -44,7 +42,7 @@ public class FacturaReporteDTO {
     // Detalle
     private List<DetalleFacturaDTO> detalles;
 
-    public FacturaReporteDTO(
+    public ComprobanteReporteDTO(
             String numeroFactura,
             LocalDate fechaEmision,
             String claveAcceso,

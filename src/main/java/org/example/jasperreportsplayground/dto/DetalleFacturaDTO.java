@@ -7,22 +7,23 @@ import java.math.BigDecimal;
 @Getter
 public class DetalleFacturaDTO {
 
-    private String producto;
-    private Integer cantidad;
-    private BigDecimal precio;
-    private BigDecimal subtotal;
-
+    private String productoCodigoPrincipal;
+    private String productoCodigoAuxiliar;
+    private Double cantidad;
+    private String descripcion;
+    private Double precio;
 
     public DetalleFacturaDTO(
-            String producto,
-            Integer cantidad,
-            BigDecimal precio
+            String productoCodigoPrincipal,
+            String productoCodigoAuxiliar,
+            Double cantidad,
+            String descripcion,
+            Double precio
     ) {
-        this.producto = producto;
+        this.productoCodigoPrincipal = productoCodigoPrincipal;
+        this.productoCodigoAuxiliar = productoCodigoAuxiliar;
         this.cantidad = cantidad;
+        this.descripcion = descripcion;
         this.precio = precio;
-        this.subtotal = precio.multiply(
-                BigDecimal.valueOf(cantidad)
-        );
     }
 }

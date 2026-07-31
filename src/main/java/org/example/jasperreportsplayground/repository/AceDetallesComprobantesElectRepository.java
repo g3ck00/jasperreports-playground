@@ -1,8 +1,8 @@
 package org.example.jasperreportsplayground.repository;
 
-import org.example.jasperreportsplayground.dto.ComprobanteReporteDTO;
-import org.example.jasperreportsplayground.entity.AceCabeceraComprobanteElect;
+import org.example.jasperreportsplayground.dto.DetalleFacturaDTO;
 import org.example.jasperreportsplayground.entity.AceCabeceraComprobanteElectId;
+import org.example.jasperreportsplayground.entity.AceDetallesComprobantesElec;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,16 +11,16 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface AceCabeceraComprobanteElectRepository
-        extends JpaRepository<AceCabeceraComprobanteElect, AceCabeceraComprobanteElectId> {
+public interface AceDetallesComprobantesElectRepository
+        extends JpaRepository<AceDetallesComprobantesElec, AceCabeceraComprobanteElectId> {
 
-    public interface ComprobanteRepository extends JpaRepository<ComprobanteReporteDTO, Long> {
-        Page<ComprobanteReporteDTO> findAll(Pageable pageable);
+    public interface ComprobanteRepository extends JpaRepository<DetalleFacturaDTO, Long> {
+        Page<DetalleFacturaDTO> findAll(Pageable pageable);
     }
 
     // Buscar un comprobante por su clave primaria compuesta
     @Override
-    Optional<AceCabeceraComprobanteElect> findById(
+    Optional<AceDetallesComprobantesElec> findById(
             AceCabeceraComprobanteElectId id
     );
 }

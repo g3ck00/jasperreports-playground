@@ -2,7 +2,7 @@ package org.example.jasperreportsplayground.service;
 
 import org.example.jasperreportsplayground.dto.ClienteFacturaDTO;
 import org.example.jasperreportsplayground.dto.DetalleFacturaDTO;
-import org.example.jasperreportsplayground.dto.FacturaReporteDTO;
+import org.example.jasperreportsplayground.dto.ComprobanteReporteDTO;
 import org.example.jasperreportsplayground.entity.AceCabeceraComprobanteElect;
 import org.example.jasperreportsplayground.entity.AceCabeceraComprobanteElectId;
 import org.example.jasperreportsplayground.repository.AceCabeceraComprobanteElectRepository;
@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class FacturaReportService {
+public class ComprobanteReportService {
 
     private final AceCabeceraComprobanteElectRepository aceCabeceraComprobanteElectRepository;
 
-    public FacturaReportService(
+    public ComprobanteReportService(
             AceCabeceraComprobanteElectRepository aceCabeceraComprobanteElectRepository
     ) {
         this.aceCabeceraComprobanteElectRepository = aceCabeceraComprobanteElectRepository;
@@ -36,31 +36,24 @@ public class FacturaReportService {
                 .orElseThrow(() -> new RuntimeException("Comprobante no encontrado."));
     }
 
-    public List<FacturaReporteDTO> readFacturas() {
+    public List<ComprobanteReporteDTO> readFacturas() {
         List<AceCabeceraComprobanteElect> facturas =
                 aceCabeceraComprobanteElectRepository.findAll();
 
-        System.out.println("Registros BD: " + facturas.size());
+        //System.out.println("Registros BD: " + facturas.size());
 
-
-        return facturas.stream()
-                .map(this::mapToReporteDTO)
-                .toList();
+        return facturas.stream().map(this::mapToReporteDTO).toList();
     }
 
 
-    private FacturaReporteDTO mapToReporteDTO(
+    private ComprobanteReporteDTO mapToReporteDTO(
             AceCabeceraComprobanteElect factura
     ) {
-
-
-        ClienteFacturaDTO cliente =
-                new ClienteFacturaDTO(
+        ClienteFacturaDTO cliente = new ClienteFacturaDTO(
                         factura.getRazonSocial(),
                         factura.getIdentificacion(),
                         factura.getDireccion()
-                );
-
+        );
 
         /*
          * Temporalmente vacío.
@@ -74,34 +67,21 @@ public class FacturaReportService {
          */
         List<DetalleFacturaDTO> detalles = List.of();
 
-
-
-        return new FacturaReporteDTO(
-
-                String.valueOf(
-                        factura.getSecuencial()
-                ),
+        return new ComprobanteReporteDTO(
+                String.valueOf(factura.getSecuencial()),
 
                 factura.getFechaEmision(),
-
                 factura.getClaveAcceso(),
-
                 factura.getRazonSocial(),
-
                 factura.getNombreComercial(),
-
                 factura.getRuc(),
-
                 factura.getDireccionMatrizEmisor(),
 
                 cliente,
 
                 factura.getTotalSinImpuestos(),
-
                 factura.getTotalDescuento(),
-
                 factura.getPropina(),
-
                 factura.getImporteTotal(),
 
                 detalles,
@@ -116,7 +96,7 @@ public class FacturaReportService {
         );
     }
 
-    public FacturaReporteDTO readFactura(
+    public ComprobanteReporteDTO readFactura(
             Long codigo,
             Integer ageLicencCodigo
     ) {

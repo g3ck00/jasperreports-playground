@@ -1,13 +1,11 @@
 package org.example.jasperreportsplayground.controller;
 
 import net.sf.jasperreports.engine.JRException;
-import org.example.jasperreportsplayground.dto.ClienteDTO;
-import org.example.jasperreportsplayground.dto.FacturaReporteDTO;
 import org.example.jasperreportsplayground.entity.AceCabeceraComprobanteElect;
 import org.example.jasperreportsplayground.entity.AceCabeceraComprobanteElectId;
 import org.example.jasperreportsplayground.repository.AceCabeceraComprobanteElectRepository;
 import org.example.jasperreportsplayground.service.ClienteService;
-import org.example.jasperreportsplayground.service.FacturaReportService;
+import org.example.jasperreportsplayground.service.ComprobanteReportService;
 import org.example.jasperreportsplayground.service.ReportService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/comprobantes")
@@ -26,17 +23,17 @@ public class ComprobanteController {
 
     private final ClienteService clienteService;
     private final ReportService reportService;
-    private final FacturaReportService facturaReportService;
+    private final ComprobanteReportService comprobanteReportService;
     private final AceCabeceraComprobanteElectRepository aceCabeceraComprobanteElectRepository;
 
     public ComprobanteController(
             ClienteService clienteService,
-            FacturaReportService facturaReportService,
+            ComprobanteReportService comprobanteReportService,
             ReportService reportService,
             AceCabeceraComprobanteElectRepository aceCabeceraComprobanteElectRepository
     ){
         this.clienteService = clienteService;
-        this.facturaReportService=facturaReportService;
+        this.comprobanteReportService = comprobanteReportService;
         this.reportService = reportService;
         this.aceCabeceraComprobanteElectRepository=aceCabeceraComprobanteElectRepository;
     }
@@ -51,7 +48,7 @@ public class ComprobanteController {
     // Read All Comprobantes
     @GetMapping
     public Page<AceCabeceraComprobanteElect> readAllComprobantes(Pageable pageable) {
-        return facturaReportService.readAllComprobantes(pageable);
+        return comprobanteReportService.readAllComprobantes(pageable);
     }
 
     // Read Comprobante by Compound Primary Key
@@ -72,7 +69,7 @@ public class ComprobanteController {
     @GetMapping("/{codigo}/{ageLicencCodigo}")
     public ResponseEntity<AceCabeceraComprobanteElect> obtener(@PathVariable Long codigo, @PathVariable Integer ageLicencCodigo
     ) {
-        return ResponseEntity.ok(facturaReportService.readComprobanteByCompoundPrimaryKey(codigo, ageLicencCodigo));
+        return ResponseEntity.ok(comprobanteReportService.readComprobanteByCompoundPrimaryKey(codigo, ageLicencCodigo));
     }
 
     //Consultar datos de prueba de Factura
