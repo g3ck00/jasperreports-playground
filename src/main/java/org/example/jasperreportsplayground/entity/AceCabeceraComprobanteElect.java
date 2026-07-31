@@ -14,7 +14,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class AceCabeceraComprobanteElect {
 
-
     @EmbeddedId
     private AceCabeceraComprobanteElectId id;
 

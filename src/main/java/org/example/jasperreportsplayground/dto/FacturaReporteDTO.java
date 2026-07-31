@@ -59,6 +59,7 @@ public class FacturaReporteDTO {
             BigDecimal total,
             List<DetalleFacturaDTO> detalles,
 
+            //Bryant
             String numeroAutorizacion,
             String direccionEstablecimiento,
             String obligadoContabilidad,
@@ -80,6 +81,7 @@ public class FacturaReporteDTO {
         this.total = total;
         this.detalles = detalles;
 
+        //Bryant
         this.numeroAutorizacion = numeroAutorizacion;
         this.direccionEstablecimiento = direccionEstablecimiento;
         this.obligadoContabilidad = obligadoContabilidad;

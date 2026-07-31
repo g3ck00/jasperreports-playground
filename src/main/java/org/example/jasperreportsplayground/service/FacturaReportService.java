@@ -4,7 +4,10 @@ import org.example.jasperreportsplayground.dto.ClienteFacturaDTO;
 import org.example.jasperreportsplayground.dto.DetalleFacturaDTO;
 import org.example.jasperreportsplayground.dto.FacturaReporteDTO;
 import org.example.jasperreportsplayground.entity.AceCabeceraComprobanteElect;
+import org.example.jasperreportsplayground.entity.AceCabeceraComprobanteElectId;
 import org.example.jasperreportsplayground.repository.AceCabeceraComprobanteElectRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,21 +15,30 @@ import java.util.List;
 @Service
 public class FacturaReportService {
 
-    private final AceCabeceraComprobanteElectRepository repository;
-
+    private final AceCabeceraComprobanteElectRepository aceCabeceraComprobanteElectRepository;
 
     public FacturaReportService(
-            AceCabeceraComprobanteElectRepository repository
+            AceCabeceraComprobanteElectRepository aceCabeceraComprobanteElectRepository
     ) {
-        this.repository = repository;
+        this.aceCabeceraComprobanteElectRepository = aceCabeceraComprobanteElectRepository;
     }
 
+    // Read All Comprobantes
+    public Page<AceCabeceraComprobanteElect> readAllComprobantes(Pageable pageable){
+        return aceCabeceraComprobanteElectRepository.findAll(pageable);
+    }
+
+    // Read Comprobante by Compound PK (Endpoint with Params)
+    public AceCabeceraComprobanteElect readComprobanteByCompoundPrimaryKey(Long codigo, Integer ageLicencCodigo) {
+        AceCabeceraComprobanteElectId id = new AceCabeceraComprobanteElectId(codigo, ageLicencCodigo);
+
+        return aceCabeceraComprobanteElectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Comprobante no encontrado."));
+    }
 
     public List<FacturaReporteDTO> readFacturas() {
-
-
         List<AceCabeceraComprobanteElect> facturas =
-                repository.findAll();
+                aceCabeceraComprobanteElectRepository.findAll();
 
         System.out.println("Registros BD: " + facturas.size());
 
@@ -102,5 +114,25 @@ public class FacturaReportService {
                 factura.getTipoAmbiente(),
                 factura.getTipoEmision()
         );
+    }
+
+    public FacturaReporteDTO readFactura(
+            Long codigo,
+            Integer ageLicencCodigo
+    ) {
+
+        AceCabeceraComprobanteElectId id =
+                new AceCabeceraComprobanteElectId(
+                        codigo,
+                        ageLicencCodigo
+                );
+
+        AceCabeceraComprobanteElect factura =
+                aceCabeceraComprobanteElectRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException("Comprobante no encontrado."));
+
+        return mapToReporteDTO(factura);
     }
 }

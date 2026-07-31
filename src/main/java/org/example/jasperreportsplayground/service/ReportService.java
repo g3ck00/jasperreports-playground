@@ -6,6 +6,7 @@ import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import org.example.jasperreportsplayground.dto.FacturaReporteDTO;
+import org.example.jasperreportsplayground.repository.AceCabeceraComprobanteElectRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -20,32 +21,37 @@ import java.util.Map;
 @Service
 public class ReportService {
 
-
     private final FacturaReportService facturaReportService;
-
+    private final AceCabeceraComprobanteElectRepository aceCabeceraComprobanteElectRepository;
 
     public ReportService(
-            FacturaReportService facturaReportService
+            FacturaReportService facturaReportService,
+            AceCabeceraComprobanteElectRepository aceCabeceraComprobanteElectRepository
     ) {
         this.facturaReportService = facturaReportService;
+        this.aceCabeceraComprobanteElectRepository = aceCabeceraComprobanteElectRepository;
     }
 
+    // Generar Reporte Por ID
+    public byte[] generarReportePorId(
+            Long codigo,
+            Integer ageLicencCodigo,
+            String formato
+    ) throws JRException, IOException {
 
-    public byte[] generateReporte(String formato)
-            throws JRException, IOException {
+        FacturaReporteDTO factura =
+                facturaReportService.readFactura(
+                        codigo,
+                        ageLicencCodigo
+                );
 
+        return generarReporte(formato, factura);
+    }
 
-        /*
-         * ============================
-         * Obtener datos desde Spring
-         * ============================
-         */
-
-        List<FacturaReporteDTO> facturas =
-                facturaReportService.readFacturas();
-
-
-
+    public byte[] generarReporte(
+            String formato,
+            FacturaReporteDTO factura
+    ) throws JRException, IOException {
         /*
          * ============================
          * Parámetros del reporte
@@ -54,9 +60,7 @@ public class ReportService {
 
         Map<String, Object> parametros = new HashMap<>();
 
-
         InputStream logo = getClass().getResourceAsStream("/company-logo-transparent-png-19.png");
-
 
         if (logo == null) {
             throw new IllegalStateException(
@@ -64,14 +68,8 @@ public class ReportService {
             );
         }
 
-
         parametros.put("logoEmpresa", logo);
-
-
-        parametros.put("fechaReporte", new java.util.Date()
-        );
-
-
+        parametros.put("fechaReporte", new java.util.Date());
 
         /*
          * ============================
@@ -81,21 +79,15 @@ public class ReportService {
 
         JRBeanCollectionDataSource dataSource =
                 new JRBeanCollectionDataSource(
-                        facturas
+                        List.of(factura)
                 );
 
-
-
-        /*
-         * ============================
-         * Cargar JRXML
-         * ============================
-         */
-
         //Traer el archivo desde los recursos locales de la PC (no recomendado para desarrollo)
-        InputStream reporte = new FileInputStream(
-                "C:\\Users\\bescalante\\JaspersoftWorkspace\\MyReports\\factura_sasf.jrxml"
-        );
+        //Oficina
+        //InputStream reporte = new FileInputStream("C:\\Users\\bescalante\\JaspersoftWorkspace\\MyReports\\factura_sasf.jrxml");
+
+        //Casa
+        InputStream reporte = new FileInputStream("C:\\Users\\Bryantcore3\\Desktop\\factura_sasf.jrxml");
 
         /*
         InputStream reporte =
@@ -111,8 +103,6 @@ public class ReportService {
             );
         }
 
-
-
         /*
          * ============================
          * Compilar reporte
@@ -120,8 +110,6 @@ public class ReportService {
          */
 
         JasperReport jasperReport = JasperCompileManager.compileReport(reporte);
-
-
 
         /*
          * ============================
@@ -136,11 +124,7 @@ public class ReportService {
                         dataSource
                 );
 
-        System.out.println("Facturas: " + facturas.size());
-
         System.out.println("Paginas: " + print.getPages().size());
-
-
 
         /*
          * ============================
@@ -155,23 +139,17 @@ public class ReportService {
 
         }
 
-
-
         if (formato.equalsIgnoreCase("xlsx")) {
-
 
             ByteArrayOutputStream output =
                     new ByteArrayOutputStream();
 
-
             JRXlsxExporter exporter =
                     new JRXlsxExporter();
-
 
             exporter.setExporterInput(
                     new SimpleExporterInput(print)
             );
-
 
             exporter.setExporterOutput(
                     new SimpleOutputStreamExporterOutput(
@@ -179,13 +157,10 @@ public class ReportService {
                     )
             );
 
-
             exporter.exportReport();
-
 
             return output.toByteArray();
         }
-
 
         throw new IllegalArgumentException(
                 "Formato no soportado: " + formato
